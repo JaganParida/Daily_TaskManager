@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Challenge Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header>
+        <div class="logo" id="userLogo">U</div>
+        <h1>Task Challenge Tracker</h1>
+        <nav>
+            <button class="nav-btn active" data-section="today">Today</button>
+            <button class="nav-btn" data-section="history">History</button>
+            <button class="nav-btn" data-section="profile">Profile</button>
+            <button class="btn-danger" id="resetBtn">Reset</button>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Today's Tasks Section -->
+        <section id="today" class="section active">
+            <div class="card">
+                <h2>Today's Challenge</h2>
+                <div class="progress-container">
+                    <h3 id="challengeText">Day 1 of 30 Challenge</h3>
+                    <div class="progress-bar">
+                        <div class="progress" id="progressBar" style="width: 3.3%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Add New Task</h2>
+                <div class="task-form">
+                    <input type="text" id="taskTitle" placeholder="Task title">
+                    <input type="date" id="taskDate">
+                    <input type="time" id="taskTime">
+                    <button class="btn-primary" id="addTaskBtn">Add Task</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Today's Tasks</h2>
+                <div id="tasksContainer">
+                    <div class="empty-state">
+                        <i class="fas fa-tasks"></i>
+                        <p>No tasks for today. Add a task to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section id="history" class="section">
+            <div class="card">
+                <h2>Completed Tasks History</h2>
+                <div id="historyContainer">
+                    <div class="empty-state">
+                        <i class="fas fa-history"></i>
+                        <p>No completed tasks yet.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile" class="section">
+            <div class="card">
+                <h2>Profile Settings</h2>
+                <div class="profile-form">
+                    <input type="text" id="userName" placeholder="Your name">
+                    <input type="email" id="userEmail" placeholder="Your email">
+                    <input type="number" id="challengeDays" placeholder="Challenge days (default: 30)" min="7"
+                        max="365">
+                    <button class="btn-primary" id="saveProfileBtn">Save Profile</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="theme-switcher" id="themeSwitcher">
+        <i class="fas fa-moon" id="themeIcon"></i>
+    </div>
+
+    <div class="notification-permission" id="notificationPermission">
+        <p>Enable notifications for task reminders?</p>
+        <button id="enableNotifications">Enable</button>
+        <button id="dismissNotification">Dismiss</button>
+    </div>
+
+    <div class="welcome-popup" id="welcomePopup">
+        <div class="welcome-content">
+            <h2>Welcome to Task Challenge Tracker!</h2>
+            <p>Please enter your name to get started</p>
+            <input type="text" id="userNameInput" placeholder="Your name">
+            <button class="btn-primary" id="startBtn">Start Tracking</button>
+        </div>
+    </div>
+
+    <div class="edit-popup" id="editPopup" style="display: none;">
+        <div class="edit-content">
+            <h2>Edit Task</h2>
+            <input type="text" id="editTaskTitle" placeholder="Task title">
+            <input type="date" id="editTaskDate">
+            <input type="time" id="editTaskTime">
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn-primary" id="saveEditBtn">Save Changes</button>
+                <button class="btn-danger" id="cancelEditBtn">Cancel</button>
+            </div>
+            <input type="hidden" id="editTaskId">
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+
+</html>
