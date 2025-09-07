@@ -275,11 +275,15 @@ button {
 
 .task-info {
   flex: 1;
+  min-width: 0;
 }
 
 .task-title {
   font-weight: 600;
   margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .task-time {
@@ -290,6 +294,7 @@ button {
 .task-actions {
   display: flex;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .task-actions button {

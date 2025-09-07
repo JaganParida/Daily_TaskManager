@@ -25,12 +25,12 @@
         <!-- Today's Tasks Section -->
         <section id="today" class="section active">
             <div class="card">
-                <h2>Today's Challenge</h2>
+                <h2>Daily Progress</h2>
                 <div class="progress-container">
-                    <h3 id="challengeText">Day 1 of 30 Challenge</h3>
                     <div class="progress-bar">
-                        <div class="progress" id="progressBar" style="width: 3.3%;"></div>
+                        <div class="progress" id="progressBar" style="width: 0%;"></div>
                     </div>
+                    <div id="progressText">0% completed (0/0 tasks)</div>
                 </div>
             </div>
 
@@ -74,9 +74,6 @@
                 <h2>Profile Settings</h2>
                 <div class="profile-form">
                     <input type="text" id="userName" placeholder="Your name">
-                    <input type="email" id="userEmail" placeholder="Your email">
-                    <input type="number" id="challengeDays" placeholder="Challenge days (default: 30)" min="7"
-                        max="365">
                     <button class="btn-primary" id="saveProfileBtn">Save Profile</button>
                 </div>
             </div>

@@ -5,8 +5,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const startBtn = document.getElementById("startBtn");
   const userLogo = document.getElementById("userLogo");
   const userName = document.getElementById("userName");
-  const userEmail = document.getElementById("userEmail");
-  const challengeDays = document.getElementById("challengeDays");
   const saveProfileBtn = document.getElementById("saveProfileBtn");
   const themeSwitcher = document.getElementById("themeSwitcher");
   const themeIcon = document.getElementById("themeIcon");
@@ -19,8 +17,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const addTaskBtn = document.getElementById("addTaskBtn");
   const tasksContainer = document.getElementById("tasksContainer");
   const historyContainer = document.getElementById("historyContainer");
-  const challengeText = document.getElementById("challengeText");
   const progressBar = document.getElementById("progressBar");
+  const progressText = document.getElementById("progressText");
   const editPopup = document.getElementById("editPopup");
   const editTaskTitle = document.getElementById("editTaskTitle");
   const editTaskDate = document.getElementById("editTaskDate");
@@ -34,19 +32,24 @@ document.addEventListener("DOMContentLoaded", function () {
   const enableNotifications = document.getElementById("enableNotifications");
   const dismissNotification = document.getElementById("dismissNotification");
 
+  // Helper function to get local date string in YYYY-MM-DD format
+  function getLocalDateString(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
   // Set today's date as default for the date input
-  const today = new Date();
-  taskDate.value = today.toISOString().split("T")[0];
+  taskDate.value = getLocalDateString();
 
   // Check if user exists in localStorage
   let user = JSON.parse(localStorage.getItem("user")) || null;
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
   let history = JSON.parse(localStorage.getItem("history")) || [];
-  let challenge = JSON.parse(localStorage.getItem("challenge")) || {
-    startDate: new Date().toISOString(),
-    currentDay: 1,
-    totalDays: 30,
-  };
+
+  // Template tasks for daily recurrence
+  let templateTasks = JSON.parse(localStorage.getItem("templateTasks")) || [];
 
   // Notification timeouts and intervals
   let notificationTimeouts = {};
@@ -56,36 +59,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const themeCycle = ["system", "light", "dark"];
   let currentThemeIndex = 0;
 
-  // Check if it's a new day and update challenge day
-  checkNewDay();
-
-  // Show welcome popup if no user data
-  if (!user) {
-    welcomePopup.style.display = "flex";
-  } else {
-    welcomePopup.style.display = "none";
-    userLogo.textContent = user.name.charAt(0).toUpperCase();
-    userName.value = user.name;
-    userEmail.value = user.email || "";
-    challengeDays.value = challenge.totalDays;
-  }
-
-  // Initialize theme
-  const savedTheme = localStorage.getItem("theme") || "system";
-  document.documentElement.setAttribute("data-theme", savedTheme);
-  currentThemeIndex = themeCycle.indexOf(savedTheme);
-  updateThemeIcon(savedTheme);
-
-  // Check notification permission
-  checkNotificationPermission();
-
-  // Load tasks and history
-  renderTasks();
-  renderHistory();
-  updateChallengeProgress();
-
-  // Schedule notifications for existing tasks
-  scheduleAllNotifications();
+  // Initialize the app
+  initApp();
 
   // Event Listeners
   startBtn.addEventListener("click", startApp);
@@ -100,14 +75,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Add event delegation for task actions
   tasksContainer.addEventListener("click", function (e) {
-    if (e.target.classList.contains("complete-btn")) {
-      const taskId = parseInt(e.target.dataset.id);
+    // Use event delegation to handle dynamically created buttons
+    const target = e.target;
+    const taskElement = target.closest(".task-item");
+
+    if (!taskElement) return;
+
+    const taskId = parseInt(taskElement.dataset.id);
+
+    if (target.classList.contains("complete-btn")) {
       completeTask(taskId);
-    } else if (e.target.classList.contains("edit-btn")) {
-      const taskId = parseInt(e.target.dataset.id);
+    } else if (target.classList.contains("edit-btn")) {
       openEditPopup(taskId);
-    } else if (e.target.classList.contains("delete-btn")) {
-      const taskId = parseInt(e.target.dataset.id);
+    } else if (target.classList.contains("delete-btn")) {
       deleteTask(taskId);
     }
   });
@@ -127,42 +107,57 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Functions
+  function initApp() {
+    // Check if it's a new day and update tasks
+    checkNewDay();
+
+    // Show welcome popup if no user data
+    if (!user) {
+      welcomePopup.style.display = "flex";
+    } else {
+      welcomePopup.style.display = "none";
+      userLogo.textContent = user.name.charAt(0).toUpperCase();
+      userName.value = user.name;
+    }
+
+    // Initialize theme
+    const savedTheme = localStorage.getItem("theme") || "system";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+    currentThemeIndex = themeCycle.indexOf(savedTheme);
+    updateThemeIcon(savedTheme);
+
+    // Check notification permission
+    checkNotificationPermission();
+
+    // Load tasks and history
+    renderTasks();
+    renderHistory();
+    updateDailyProgress();
+
+    // Schedule notifications for existing tasks
+    scheduleAllNotifications();
+  }
+
   function startApp() {
     const name = userNameInput.value.trim();
     if (name) {
-      user = { name, email: "" };
+      user = { name };
       localStorage.setItem("user", JSON.stringify(user));
       userLogo.textContent = name.charAt(0).toUpperCase();
       welcomePopup.style.display = "none";
 
-      // Set default challenge if not exists
-      if (!localStorage.getItem("challenge")) {
-        localStorage.setItem("challenge", JSON.stringify(challenge));
-      }
-
       // Check notification permission after user starts
       checkNotificationPermission();
+    } else {
+      alert("Please enter your name to continue");
     }
   }
 
   function saveProfile() {
     if (user) {
       user.name = userName.value;
-      user.email = userEmail.value;
       localStorage.setItem("user", JSON.stringify(user));
       userLogo.textContent = user.name.charAt(0).toUpperCase();
-
-      // Update challenge days if changed
-      if (
-        challengeDays.value &&
-        challengeDays.value >= 7 &&
-        challengeDays.value <= 365
-      ) {
-        challenge.totalDays = parseInt(challengeDays.value);
-        localStorage.setItem("challenge", JSON.stringify(challenge));
-        updateChallengeProgress();
-      }
-
       alert("Profile saved successfully!");
     }
   }
@@ -195,11 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
       user = null;
       tasks = [];
       history = [];
-      challenge = {
-        startDate: new Date().toISOString(),
-        currentDay: 1,
-        totalDays: 30,
-      };
+      templateTasks = [];
 
       // Clear all notifications
       for (let id in notificationTimeouts) {
@@ -215,7 +206,7 @@ document.addEventListener("DOMContentLoaded", function () {
       welcomePopup.style.display = "flex";
       renderTasks();
       renderHistory();
-      updateChallengeProgress();
+      updateDailyProgress();
     }
   }
 
@@ -231,17 +222,29 @@ document.addEventListener("DOMContentLoaded", function () {
         date,
         time,
         completed: false,
-        isDaily: tasks.length === 0, // First task becomes daily
-        dayNumber: challenge.currentDay,
       };
 
       tasks.push(task);
       localStorage.setItem("tasks", JSON.stringify(tasks));
 
+      // Check if template already exists for this task
+      const existingTemplate = templateTasks.find(
+        (t) => t.title === title && t.time === time
+      );
+
+      if (!existingTemplate) {
+        templateTasks.push({
+          title,
+          time,
+        });
+        localStorage.setItem("templateTasks", JSON.stringify(templateTasks));
+      }
+
       taskTitle.value = "";
       taskTime.value = "";
 
       renderTasks();
+      updateDailyProgress();
       scheduleNotification(task);
     } else {
       alert("Please fill all task fields");
@@ -251,21 +254,23 @@ document.addEventListener("DOMContentLoaded", function () {
   function renderTasks() {
     tasksContainer.innerHTML = "";
 
-    if (tasks.length === 0) {
+    // Get today's date in YYYY-MM-DD format
+    const today = getLocalDateString();
+
+    // Filter tasks for today
+    const todayTasks = tasks.filter((task) => task.date === today);
+    const uncompletedTasks = todayTasks.filter((task) => !task.completed);
+
+    if (todayTasks.length === 0) {
+      // No tasks at all for today
       tasksContainer.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-tasks"></i>
                             <p>No tasks for today. Add a task to get started!</p>
                         </div>
                     `;
-      return;
-    }
-
-    const todayTasks = tasks.filter(
-      (task) => !task.completed && task.dayNumber === challenge.currentDay
-    );
-
-    if (todayTasks.length === 0) {
+    } else if (uncompletedTasks.length === 0) {
+      // All tasks completed for today
       tasksContainer.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-check-circle"></i>
@@ -273,9 +278,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         </div>
                     `;
     } else {
-      todayTasks.forEach((task) => {
+      // Show uncompleted tasks
+      uncompletedTasks.forEach((task) => {
         const taskElement = document.createElement("div");
         taskElement.className = "task-item";
+        taskElement.dataset.id = task.id;
         taskElement.innerHTML = `
                             <div class="task-info">
                                 <div class="task-title">${task.title}</div>
@@ -340,6 +347,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         localStorage.setItem("tasks", JSON.stringify(tasks));
         renderTasks();
+        updateDailyProgress();
 
         // Schedule new notifications for the updated task
         scheduleNotification(tasks[taskIndex]);
@@ -382,24 +390,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
       renderTasks();
       renderHistory();
-      updateChallengeProgress();
+      updateDailyProgress();
     }
   }
 
   function deleteTask(taskId) {
-    // Clear notifications for this task
-    if (notificationTimeouts[taskId]) {
-      clearTimeout(notificationTimeouts[taskId]);
-      delete notificationTimeouts[taskId];
-    }
-    if (notificationIntervals[taskId]) {
-      clearInterval(notificationIntervals[taskId]);
-      delete notificationIntervals[taskId];
-    }
+    const taskIndex = tasks.findIndex((t) => t.id === taskId);
+    if (taskIndex !== -1) {
+      const task = tasks[taskIndex];
 
-    tasks = tasks.filter((t) => t.id !== taskId);
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-    renderTasks();
+      // Remove from template tasks
+      templateTasks = templateTasks.filter(
+        (t) => !(t.title === task.title && t.time === task.time)
+      );
+      localStorage.setItem("templateTasks", JSON.stringify(templateTasks));
+
+      // Clear notifications for this task
+      if (notificationTimeouts[taskId]) {
+        clearTimeout(notificationTimeouts[taskId]);
+        delete notificationTimeouts[taskId];
+      }
+      if (notificationIntervals[taskId]) {
+        clearInterval(notificationIntervals[taskId]);
+        delete notificationIntervals[taskId];
+      }
+
+      tasks = tasks.filter((t) => t.id !== taskId);
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      renderTasks();
+      updateDailyProgress();
+    }
   }
 
   function renderHistory() {
@@ -445,51 +465,51 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function updateChallengeProgress() {
+  function updateDailyProgress() {
+    // Get today's date in YYYY-MM-DD format
+    const today = getLocalDateString();
+
     const completedTasks = tasks.filter(
-      (t) => t.completed && t.dayNumber === challenge.currentDay
+      (t) => t.completed && t.date === today
     ).length;
-    const totalTasks = tasks.filter(
-      (t) => t.dayNumber === challenge.currentDay
-    ).length;
+    const totalTasks = tasks.filter((t) => t.date === today).length;
     const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
     progressBar.style.width = `${progress}%`;
-    challengeText.textContent = `Day ${challenge.currentDay} of ${challenge.totalDays} Challenge`;
+    progressText.textContent = `${Math.round(
+      progress
+    )}% completed (${completedTasks}/${totalTasks} tasks)`;
   }
 
   function checkNewDay() {
     const now = new Date();
-    const lastCheck = new Date(localStorage.getItem("lastDayCheck") || 0);
+    const today = getLocalDateString(now);
+    const lastCheck = localStorage.getItem("lastDayCheck");
 
-    if (
-      now.getDate() !== lastCheck.getDate() ||
-      now.getMonth() !== lastCheck.getMonth() ||
-      now.getFullYear() !== lastCheck.getFullYear()
-    ) {
-      // It's a new day
-      if (challenge.currentDay < challenge.totalDays) {
-        challenge.currentDay++;
+    if (lastCheck !== today) {
+      // It's a new day - add recurring tasks from template
+      templateTasks.forEach((template) => {
+        // Check if this task already exists for today
+        const existingTask = tasks.find(
+          (t) =>
+            t.title === template.title &&
+            t.time === template.time &&
+            t.date === today
+        );
 
-        // Add daily recurring tasks
-        const dailyTasks = tasks.filter((task) => task.isDaily);
-        dailyTasks.forEach((task) => {
+        if (!existingTask) {
           tasks.push({
-            id: Date.now() + Math.random(), // Ensure unique ID
-            title: task.title,
-            date: now.toISOString().split("T")[0],
-            time: task.time,
+            id: Date.now() + Math.floor(Math.random() * 1000), // Ensure unique ID
+            title: template.title,
+            date: today,
+            time: template.time,
             completed: false,
-            isDaily: true,
-            dayNumber: challenge.currentDay,
           });
-        });
+        }
+      });
 
-        localStorage.setItem("tasks", JSON.stringify(tasks));
-        localStorage.setItem("challenge", JSON.stringify(challenge));
-      }
-
-      localStorage.setItem("lastDayCheck", now.toISOString());
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      localStorage.setItem("lastDayCheck", today);
     }
   }
 
@@ -500,7 +520,10 @@ document.addEventListener("DOMContentLoaded", function () {
       month: "short",
       day: "numeric",
     };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    return new Date(dateString + "T00:00:00").toLocaleDateString(
+      undefined,
+      options
+    );
   }
 
   function checkNotificationPermission() {
@@ -541,10 +564,13 @@ document.addEventListener("DOMContentLoaded", function () {
     notificationIntervals = {};
 
     // Schedule notifications for all uncompleted tasks
-    tasks.forEach((task) => {
-      if (!task.completed) {
-        scheduleNotification(task);
-      }
+    const today = getLocalDateString();
+    const todayTasks = tasks.filter(
+      (task) => task.date === today && !task.completed
+    );
+
+    todayTasks.forEach((task) => {
+      scheduleNotification(task);
     });
   }
 
@@ -573,9 +599,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const currentTask = tasks.find((t) => t.id === task.id);
       if (currentTask && !currentTask.completed) {
         // Show notification
-        new Notification("Task Reminder", {
-          body: `Your task "${task.title}" is due in 30 minutes at ${task.time}`,
-        });
+        if (Notification.permission === "granted") {
+          new Notification("Task Reminder", {
+            body: `Your task "${task.title}" is due in 30 minutes at ${task.time}`,
+          });
+        }
 
         // Schedule additional reminders every 2 minutes
         notificationIntervals[task.id] = setInterval(() => {
@@ -597,16 +625,16 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
           }
 
-          new Notification("Task Reminder", {
-            body: `Your task "${task.title}" is due soon! Complete it to stop reminders.`,
-          });
+          if (Notification.permission === "granted") {
+            new Notification("Task Reminder", {
+              body: `Your task "${task.title}" is due soon! Complete it to stop reminders.`,
+            });
+          }
         }, 2 * 60 * 1000); // Every 2 minutes
       }
     }, timeUntilNotification);
   }
 
-  // Request notification permission on load if not already set
-  if ("Notification" in window && Notification.permission === "default") {
-    // We'll show our custom notification permission prompt instead
-  }
+  // Check for new day every minute
+  setInterval(checkNewDay, 60000);
 });
