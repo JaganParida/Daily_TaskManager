@@ -481,7 +481,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (history.length === 0) {
       daysCompletedContainer.innerHTML = `
                         <div class="days-completed">
-                            Days Completed: 0
+                            Total Days Completed: 0
                         </div>
                     `;
       return;
@@ -493,21 +493,18 @@ document.addEventListener("DOMContentLoaded", function () {
       uniqueDays.add(item.date);
     });
 
-    // Calculate total days from first task to today
-    const firstTaskDate = new Date(
-      Math.min(...Array.from(uniqueDays).map((d) => new Date(d)))
-    );
-    const today = new Date();
-    const totalDays =
-      Math.ceil((today - firstTaskDate) / (1000 * 60 * 60 * 24)) + 1;
+    // Get the first and last dates
+    const dates = Array.from(uniqueDays).sort();
+    const firstDate = dates[0];
+    const lastDate = dates[dates.length - 1];
 
     daysCompletedContainer.innerHTML = `
                     <div class="days-completed">
-                        Days Completed: ${
-                          uniqueDays.size
-                        } out of ${totalDays} (${Math.round(
-      (uniqueDays.size / totalDays) * 100
-    )}%)
+                        Total Days Completed: ${uniqueDays.size}
+                        <div class="days-summary">
+                            <span>From: ${formatDate(firstDate)}</span>
+                            <span>To: ${formatDate(lastDate)}</span>
+                        </div>
                     </div>
                 `;
   }

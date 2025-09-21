@@ -404,11 +404,20 @@ button {
 .days-completed {
   background-color: var(--success);
   color: white;
-  padding: 10px 15px;
+  padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
   text-align: center;
   font-weight: bold;
+  font-size: 18px;
+}
+
+.days-summary {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 14px;
+  opacity: 0.9;
 }
 
 @media (max-width: 768px) {
