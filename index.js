@@ -35,6 +35,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const enableNotifications = document.getElementById("enableNotifications");
   const dismissNotification = document.getElementById("dismissNotification");
 
+  // Calendar elements
+  const calendarGrid = document.getElementById("calendarGrid");
+  const calendarTitle = document.getElementById("calendarTitle");
+  const prevMonthBtn = document.getElementById("prevMonth");
+  const nextMonthBtn = document.getElementById("nextMonth");
+  const todayMonthBtn = document.getElementById("todayMonth");
+
   // Helper function to get local date string in YYYY-MM-DD format
   function getLocalDateString(date = new Date()) {
     const year = date.getFullYear();
@@ -58,6 +65,10 @@ document.addEventListener("DOMContentLoaded", function () {
   let notificationTimeouts = {};
   let notificationIntervals = {};
 
+  // Calendar state
+  let currentMonth = new Date().getMonth();
+  let currentYear = new Date().getFullYear();
+
   // Theme cycle: system -> light -> dark
   const themeCycle = ["system", "light", "dark"];
   let currentThemeIndex = 0;
@@ -75,6 +86,32 @@ document.addEventListener("DOMContentLoaded", function () {
   cancelEditBtn.addEventListener("click", closeEditPopup);
   enableNotifications.addEventListener("click", requestNotificationPermission);
   dismissNotification.addEventListener("click", dismissNotificationPermission);
+
+  // Calendar navigation
+  prevMonthBtn.addEventListener("click", () => {
+    currentMonth--;
+    if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    }
+    renderCalendar();
+  });
+
+  nextMonthBtn.addEventListener("click", () => {
+    currentMonth++;
+    if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    }
+    renderCalendar();
+  });
+
+  todayMonthBtn.addEventListener("click", () => {
+    const today = new Date();
+    currentMonth = today.getMonth();
+    currentYear = today.getFullYear();
+    renderCalendar();
+  });
 
   // Add event delegation for task actions
   tasksContainer.addEventListener("click", function (e) {
@@ -110,6 +147,11 @@ document.addEventListener("DOMContentLoaded", function () {
       // If history section is activated, update the days completed
       if (sectionId === "history") {
         updateDaysCompleted();
+      }
+
+      // If calendar section is activated, render the calendar
+      if (sectionId === "calendar") {
+        renderCalendar();
       }
     });
   });
@@ -679,6 +721,105 @@ document.addEventListener("DOMContentLoaded", function () {
     }, timeUntilNotification);
   }
 
+  // Calendar functions
+  function renderCalendar() {
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    // Update calendar title
+    calendarTitle.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+    // Clear previous calendar
+    calendarGrid.innerHTML = "";
+
+    // Add weekday headers
+    const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    weekdays.forEach((day) => {
+      const dayElement = document.createElement("div");
+      dayElement.className = "calendar-weekday";
+      dayElement.textContent = day;
+      calendarGrid.appendChild(dayElement);
+    });
+
+    // Get first day of month and number of days in month
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    const lastDay = new Date(currentYear, currentMonth + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startDay = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startDay; i++) {
+      const emptyDay = document.createElement("div");
+      emptyDay.className = "calendar-day other-month";
+      calendarGrid.appendChild(emptyDay);
+    }
+
+    // Add cells for each day of the month
+    const today = new Date();
+    const todayFormatted = getLocalDateString(today);
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayElement = document.createElement("div");
+      const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(
+        2,
+        "0"
+      )}-${String(day).padStart(2, "0")}`;
+
+      dayElement.className = "calendar-day";
+      dayElement.textContent = day;
+
+      // Check if this is today
+      if (
+        currentYear === today.getFullYear() &&
+        currentMonth === today.getMonth() &&
+        day === today.getDate()
+      ) {
+        dayElement.classList.add("today");
+      }
+
+      // Check task completion status for this day
+      const dayTasks = tasks.filter((task) => task.date === dateStr);
+
+      if (dayTasks.length > 0) {
+        const completedTasks = dayTasks.filter((task) => task.completed).length;
+
+        if (completedTasks === dayTasks.length) {
+          // All tasks completed
+          dayElement.classList.add("completed");
+        } else if (completedTasks > 0) {
+          // Some tasks completed
+          dayElement.classList.add("partial");
+        } else {
+          // Tasks exist but none completed
+          dayElement.classList.add("has-tasks");
+        }
+
+        // Add completion count badge
+        const badge = document.createElement("div");
+        badge.className = "day-details";
+        badge.textContent = completedTasks;
+        dayElement.appendChild(badge);
+      }
+
+      calendarGrid.appendChild(dayElement);
+    }
+  }
+
   // Check for new day every minute
   setInterval(checkNewDay, 60000);
+
+  // Initial calendar render
+  renderCalendar();
 });

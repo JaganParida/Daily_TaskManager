@@ -1,7 +1,7 @@
 :root {
   --primary: #4361ee;
   --secondary: #3a0ca3;
-  --success: #4c71f0;
+  --success: #4cc9f0;
   --danger: #f72585;
   --warning: #fca311;
   --info: #4895ef;
@@ -420,6 +420,98 @@ button {
   opacity: 0.9;
 }
 
+/* Calendar Styles */
+.calendar {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.calendar-nav {
+  display: flex;
+  gap: 10px;
+}
+
+.calendar-title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-weight: bold;
+  padding: 10px;
+  background-color: var(--primary);
+  color: white;
+  border-radius: 5px;
+}
+
+.calendar-day {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  position: relative;
+  cursor: pointer;
+}
+
+.calendar-day.other-month {
+  opacity: 0.3;
+}
+
+.calendar-day.today {
+  border: 2px solid var(--primary);
+}
+
+.calendar-day.completed {
+  background-color: var(--success);
+  color: white;
+}
+
+.calendar-day.partial {
+  background-color: var(--warning);
+  color: white;
+}
+
+.calendar-day.has-tasks {
+  background-color: var(--info);
+  color: white;
+}
+
+.calendar-day.empty {
+  background-color: var(--border);
+}
+
+.day-details {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  width: 20px;
+  height: 20px;
+  background-color: var(--primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
 @media (max-width: 768px) {
   .task-form {
     flex-direction: column;
@@ -451,5 +543,10 @@ button {
     left: 20px;
     right: 20px;
     bottom: 100px;
+  }
+
+  .calendar-day {
+    height: 35px;
+    font-size: 14px;
   }
 }

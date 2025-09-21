@@ -16,6 +16,7 @@
         <nav>
             <button class="nav-btn active" data-section="today">Today</button>
             <button class="nav-btn" data-section="history">History</button>
+            <button class="nav-btn" data-section="calendar">Calendar</button>
             <button class="nav-btn" data-section="profile">Profile</button>
             <button class="btn-danger" id="resetBtn">Reset</button>
         </nav>
@@ -69,6 +70,26 @@
             </div>
         </section>
 
+        <!-- Calendar Section -->
+        <section id="calendar" class="section">
+            <div class="card">
+                <h2>Task Completion Calendar</h2>
+                <div class="calendar">
+                    <div class="calendar-header">
+                        <div class="calendar-nav">
+                            <button class="btn-primary" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                            <button class="btn-primary" id="todayMonth">Today</button>
+                            <button class="btn-primary" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div class="calendar-title" id="calendarTitle">September 2023</div>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar will be generated here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Profile Section -->
         <section id="profile" class="section">
             <div class="card">
@@ -114,7 +135,9 @@
         </div>
     </div>
 
-    <script src="index.js"></script>
+    <script>
+
+    </script>
 </body>
 
 </html>
