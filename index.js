@@ -17,6 +17,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const addTaskBtn = document.getElementById("addTaskBtn");
   const tasksContainer = document.getElementById("tasksContainer");
   const historyContainer = document.getElementById("historyContainer");
+  const daysCompletedContainer = document.getElementById(
+    "daysCompletedContainer"
+  );
   const progressBar = document.getElementById("progressBar");
   const progressText = document.getElementById("progressText");
   const editPopup = document.getElementById("editPopup");
@@ -103,6 +106,11 @@ document.addEventListener("DOMContentLoaded", function () {
       // Show active section
       sections.forEach((section) => section.classList.remove("active"));
       document.getElementById(sectionId).classList.add("active");
+
+      // If history section is activated, update the days completed
+      if (sectionId === "history") {
+        updateDaysCompleted();
+      }
     });
   });
 
@@ -207,6 +215,7 @@ document.addEventListener("DOMContentLoaded", function () {
       renderTasks();
       renderHistory();
       updateDailyProgress();
+      updateDaysCompleted();
     }
   }
 
@@ -391,6 +400,7 @@ document.addEventListener("DOMContentLoaded", function () {
       renderTasks();
       renderHistory();
       updateDailyProgress();
+      updateDaysCompleted();
     }
   }
 
@@ -463,6 +473,43 @@ document.addEventListener("DOMContentLoaded", function () {
       dateElement.innerHTML = dateHTML;
       historyContainer.appendChild(dateElement);
     }
+  }
+
+  function updateDaysCompleted() {
+    daysCompletedContainer.innerHTML = "";
+
+    if (history.length === 0) {
+      daysCompletedContainer.innerHTML = `
+                        <div class="days-completed">
+                            Days Completed: 0
+                        </div>
+                    `;
+      return;
+    }
+
+    // Get unique days with completed tasks
+    const uniqueDays = new Set();
+    history.forEach((item) => {
+      uniqueDays.add(item.date);
+    });
+
+    // Calculate total days from first task to today
+    const firstTaskDate = new Date(
+      Math.min(...Array.from(uniqueDays).map((d) => new Date(d)))
+    );
+    const today = new Date();
+    const totalDays =
+      Math.ceil((today - firstTaskDate) / (1000 * 60 * 60 * 24)) + 1;
+
+    daysCompletedContainer.innerHTML = `
+                    <div class="days-completed">
+                        Days Completed: ${
+                          uniqueDays.size
+                        } out of ${totalDays} (${Math.round(
+      (uniqueDays.size / totalDays) * 100
+    )}%)
+                    </div>
+                `;
   }
 
   function updateDailyProgress() {

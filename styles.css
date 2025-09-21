@@ -401,6 +401,16 @@ button {
   color: var(--border);
 }
 
+.days-completed {
+  background-color: var(--success);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: bold;
+}
+
 @media (max-width: 768px) {
   .task-form {
     flex-direction: column;
