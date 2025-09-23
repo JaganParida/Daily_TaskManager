@@ -13,6 +13,7 @@
 <body>
     <header>
         <div class="logo" id="userLogo">U</div>
+        <h1>Task Challenge Tracker</h1>
         <nav>
             <button class="nav-btn active" data-section="today">Today</button>
             <button class="nav-btn" data-section="history">History</button>
@@ -23,7 +24,6 @@
     </header>
 
     <div class="container">
-        <!-- Today's Tasks Section -->
         <section id="today" class="section active">
             <div class="card">
                 <h2>Daily Progress</h2>
@@ -34,7 +34,6 @@
                     <div id="progressText">0% completed (0/0 tasks)</div>
                 </div>
             </div>
-
             <div class="card">
                 <h2>Add New Task</h2>
                 <div class="task-form">
@@ -44,35 +43,30 @@
                     <button class="btn-primary" id="addTaskBtn">Add Task</button>
                 </div>
             </div>
-
             <div class="card">
                 <h2>Today's Tasks</h2>
                 <div id="tasksContainer">
-                    <div class="empty-state">
-                        <i class="fas fa-tasks"></i>
+                    <div class="empty-state"><i class="fas fa-tasks"></i>
                         <p>No tasks for today. Add a task to get started!</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- History Section -->
         <section id="history" class="section">
             <div class="card">
                 <h2>Completed Tasks History</h2>
                 <div id="daysCompletedContainer"></div>
                 <div id="historyContainer">
-                    <div class="empty-state">
-                        <i class="fas fa-history"></i>
+                    <div class="empty-state"><i class="fas fa-history"></i>
                         <p>No completed tasks yet.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Calendar Section -->
         <section id="calendar" class="section">
-            <div class="card">
+            <div class="card callender">
                 <h2>Task Completion Calendar</h2>
                 <div class="calendar">
                     <div class="calendar-header">
@@ -81,16 +75,13 @@
                             <button class="btn-primary" id="todayMonth">Today</button>
                             <button class="btn-primary" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
                         </div>
-                        <div class="calendar-title" id="calendarTitle">September 2023</div>
+                        <div class="calendar-title" id="calendarTitle"></div>
                     </div>
-                    <div class="calendar-grid" id="calendarGrid">
-                        <!-- Calendar will be generated here -->
-                    </div>
+                    <div class="calendar-grid" id="calendarGrid"></div>
                 </div>
             </div>
         </section>
 
-        <!-- Profile Section -->
         <section id="profile" class="section">
             <div class="card">
                 <h2>Profile Settings</h2>
