@@ -255,17 +255,17 @@ document.addEventListener("DOMContentLoaded", function () {
         taskElement.className = "task-item";
         taskElement.dataset.id = task.id;
         taskElement.innerHTML = `
-                    <div class="task-info">
-                        <div class="task-title">${task.title}</div>
-                        <div class="task-time">${formatDate(task.date)} at ${
-          task.time
-        }</div>
-                    </div>
-                    <div class="task-actions">
-                        <button class="btn-success complete-btn">Complete</button>
-                        <button class="btn-warning edit-btn">Edit</button>
-                        <button class="btn-danger delete-btn">Delete</button>
-                    </div>`;
+                        <div class="task-info">
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-time">${formatDate(
+                              task.date
+                            )} at ${task.time}</div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn-success complete-btn">Complete</button>
+                            <button class="btn-warning edit-btn">Edit</button>
+                            <button class="btn-danger delete-btn">Delete</button>
+                        </div>`;
         tasksContainer.appendChild(taskElement);
       });
     }
@@ -346,16 +346,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // FIXED: Rewritten deleteTask function
+  // ✅ FIXED: This function is completely rewritten to prevent crashes.
   function deleteTask(taskId) {
+    // Find the task's location in the array BEFORE deleting it.
     const taskIndex = tasks.findIndex((t) => t.id === taskId);
 
     if (taskIndex !== -1) {
-      // Good UX: Ask for confirmation before deleting
+      // Good UX: Ask for confirmation before deleting.
       if (confirm("Are you sure you want to delete this task?")) {
+        // Get a reference to the task object before it's removed.
         const deletedTask = tasks[taskIndex];
 
-        // 1. Clear any scheduled notifications for this task
+        // 1. Clear any scheduled notifications for this specific task.
         if (notificationTimeouts[taskId]) {
           clearTimeout(notificationTimeouts[taskId]);
           delete notificationTimeouts[taskId];
@@ -365,10 +367,12 @@ document.addEventListener("DOMContentLoaded", function () {
           delete notificationIntervals[taskId];
         }
 
-        // 2. Remove the task from the main tasks array using splice
+        // 2. Remove the task from the main 'tasks' array.
         tasks.splice(taskIndex, 1);
 
-        // 3. Remove the associated template task to prevent recurrence
+        // 3. Remove the associated template to prevent it from auto-adding tomorrow.
+        // We use the 'deletedTask' object we saved earlier to find the right template.
+        // CRUCIAL: Re-assign the result of .filter() back to the 'templateTasks' variable.
         templateTasks = templateTasks.filter(
           (template) =>
             !(
@@ -377,11 +381,11 @@ document.addEventListener("DOMContentLoaded", function () {
             )
         );
 
-        // 4. Update localStorage for both arrays
+        // 4. Update localStorage with the newly modified arrays.
         localStorage.setItem("tasks", JSON.stringify(tasks));
         localStorage.setItem("templateTasks", JSON.stringify(templateTasks));
 
-        // 5. Update the UI
+        // 5. Update the UI to reflect the changes.
         renderTasks();
         updateDailyProgress();
         renderCalendar();
