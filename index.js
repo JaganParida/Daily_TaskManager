@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // Check if elements exist before trying to access them
   const welcomePopup = document.getElementById("welcomePopup");
   const userNameInput = document.getElementById("userNameInput");
   const startBtn = document.getElementById("startBtn");
@@ -39,6 +40,15 @@ document.addEventListener("DOMContentLoaded", function () {
   const nextMonthBtn = document.getElementById("nextMonth");
   const todayMonthBtn = document.getElementById("todayMonth");
 
+  // Safe element checking function
+  function safeQuery(selector) {
+    const element = document.querySelector(selector);
+    if (!element) {
+      console.warn(`Element not found: ${selector}`);
+    }
+    return element;
+  }
+
   function getLocalDateString(date = new Date()) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -46,7 +56,10 @@ document.addEventListener("DOMContentLoaded", function () {
     return `${year}-${month}-${day}`;
   }
 
-  taskDate.value = getLocalDateString();
+  // Initialize date field
+  if (taskDate) {
+    taskDate.value = getLocalDateString();
+  }
 
   let user = JSON.parse(localStorage.getItem("user")) || null;
   let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -62,78 +75,100 @@ document.addEventListener("DOMContentLoaded", function () {
 
   initApp();
 
-  startBtn.addEventListener("click", startApp);
-  saveProfileBtn.addEventListener("click", saveProfile);
-  themeSwitcher.addEventListener("click", toggleTheme);
-  resetBtn.addEventListener("click", resetApp);
-  addTaskBtn.addEventListener("click", addTask);
-  saveEditBtn.addEventListener("click", saveEditedTask);
-  cancelEditBtn.addEventListener("click", closeEditPopup);
-  enableNotifications.addEventListener("click", requestNotificationPermission);
-  dismissNotification.addEventListener("click", dismissNotificationPermission);
+  // Event listeners with safety checks
+  if (startBtn) startBtn.addEventListener("click", startApp);
+  if (saveProfileBtn) saveProfileBtn.addEventListener("click", saveProfile);
+  if (themeSwitcher) themeSwitcher.addEventListener("click", toggleTheme);
+  if (resetBtn) resetBtn.addEventListener("click", resetApp);
+  if (addTaskBtn) addTaskBtn.addEventListener("click", addTask);
+  if (saveEditBtn) saveEditBtn.addEventListener("click", saveEditedTask);
+  if (cancelEditBtn) cancelEditBtn.addEventListener("click", closeEditPopup);
+  if (enableNotifications)
+    enableNotifications.addEventListener(
+      "click",
+      requestNotificationPermission
+    );
+  if (dismissNotification)
+    dismissNotification.addEventListener(
+      "click",
+      dismissNotificationPermission
+    );
 
-  prevMonthBtn.addEventListener("click", () => {
-    currentMonth--;
-    if (currentMonth < 0) {
-      currentMonth = 11;
-      currentYear--;
-    }
-    renderCalendar();
-  });
-  nextMonthBtn.addEventListener("click", () => {
-    currentMonth++;
-    if (currentMonth > 11) {
-      currentMonth = 0;
-      currentYear++;
-    }
-    renderCalendar();
-  });
-  todayMonthBtn.addEventListener("click", () => {
-    const today = new Date();
-    currentMonth = today.getMonth();
-    currentYear = today.getFullYear();
-    renderCalendar();
-  });
-
-  tasksContainer.addEventListener("click", function (e) {
-    const target = e.target;
-    const taskElement = target.closest(".task-item");
-    if (!taskElement) return;
-    const taskId = parseInt(taskElement.dataset.id);
-    if (target.classList.contains("complete-btn")) {
-      completeTask(taskId);
-    } else if (target.classList.contains("edit-btn")) {
-      openEditPopup(taskId);
-    } else if (target.classList.contains("delete-btn")) {
-      deleteTask(taskId);
-    }
-  });
-
-  navBtns.forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const sectionId = this.getAttribute("data-section");
-      navBtns.forEach((b) => b.classList.remove("active"));
-      this.classList.add("active");
-      sections.forEach((section) => section.classList.remove("active"));
-      document.getElementById(sectionId).classList.add("active");
-      if (sectionId === "history") {
-        updateDaysCompleted();
+  if (prevMonthBtn)
+    prevMonthBtn.addEventListener("click", () => {
+      currentMonth--;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
       }
-      if (sectionId === "calendar") {
-        renderCalendar();
+      renderCalendar();
+    });
+
+  if (nextMonthBtn)
+    nextMonthBtn.addEventListener("click", () => {
+      currentMonth++;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+      renderCalendar();
+    });
+
+  if (todayMonthBtn)
+    todayMonthBtn.addEventListener("click", () => {
+      const today = new Date();
+      currentMonth = today.getMonth();
+      currentYear = today.getFullYear();
+      renderCalendar();
+    });
+
+  if (tasksContainer) {
+    tasksContainer.addEventListener("click", function (e) {
+      const target = e.target;
+      const taskElement = target.closest(".task-item");
+      if (!taskElement) return;
+      const taskId = parseInt(taskElement.dataset.id);
+
+      if (target.classList.contains("complete-btn")) {
+        completeTask(taskId);
+      } else if (target.classList.contains("edit-btn")) {
+        openEditPopup(taskId);
+      } else if (target.classList.contains("delete-btn")) {
+        deleteTask(taskId);
       }
     });
-  });
+  }
+
+  if (navBtns) {
+    navBtns.forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const sectionId = this.getAttribute("data-section");
+        navBtns.forEach((b) => b.classList.remove("active"));
+        this.classList.add("active");
+        sections.forEach((section) => section.classList.remove("active"));
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) targetSection.classList.add("active");
+
+        if (sectionId === "history") {
+          updateDaysCompleted();
+        }
+        if (sectionId === "calendar") {
+          renderCalendar();
+        }
+      });
+    });
+  }
 
   function initApp() {
     checkNewDay();
     if (!user) {
-      welcomePopup.style.display = "flex";
+      if (welcomePopup) welcomePopup.style.display = "flex";
     } else {
-      welcomePopup.style.display = "none";
-      userLogo.textContent = user.name.charAt(0).toUpperCase();
-      userName.value = user.name;
+      if (welcomePopup) welcomePopup.style.display = "none";
+      if (userLogo) userLogo.textContent = user.name.charAt(0).toUpperCase();
+      if (userName) userName.value = user.name;
     }
+
     const savedTheme = localStorage.getItem("theme") || "system";
     document.documentElement.setAttribute("data-theme", savedTheme);
     currentThemeIndex = themeCycle.indexOf(savedTheme);
@@ -146,12 +181,14 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function startApp() {
+    if (!userNameInput) return;
+
     const name = userNameInput.value.trim();
     if (name) {
       user = { name };
       localStorage.setItem("user", JSON.stringify(user));
-      userLogo.textContent = name.charAt(0).toUpperCase();
-      welcomePopup.style.display = "none";
+      if (userLogo) userLogo.textContent = name.charAt(0).toUpperCase();
+      if (welcomePopup) welcomePopup.style.display = "none";
       checkNotificationPermission();
     } else {
       alert("Please enter your name to continue");
@@ -159,12 +196,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function saveProfile() {
-    if (user) {
-      user.name = userName.value;
-      localStorage.setItem("user", JSON.stringify(user));
-      userLogo.textContent = user.name.charAt(0).toUpperCase();
-      alert("Profile saved successfully!");
-    }
+    if (!user || !userName) return;
+
+    user.name = userName.value;
+    localStorage.setItem("user", JSON.stringify(user));
+    if (userLogo) userLogo.textContent = user.name.charAt(0).toUpperCase();
+    alert("Profile saved successfully!");
   }
 
   function toggleTheme() {
@@ -176,6 +213,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updateThemeIcon(theme) {
+    if (!themeIcon) return;
+
     if (theme === "system") {
       themeIcon.className = "fas fa-desktop";
     } else if (theme === "light") {
@@ -194,6 +233,8 @@ document.addEventListener("DOMContentLoaded", function () {
       tasks = [];
       history = [];
       templateTasks = [];
+
+      // Clear all timeouts and intervals
       for (let id in notificationTimeouts) {
         clearTimeout(notificationTimeouts[id]);
       }
@@ -202,16 +243,20 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       notificationTimeouts = {};
       notificationIntervals = {};
-      userLogo.textContent = "U";
-      welcomePopup.style.display = "flex";
+
+      if (userLogo) userLogo.textContent = "U";
+      if (welcomePopup) welcomePopup.style.display = "flex";
       renderTasks();
       renderHistory();
       updateDailyProgress();
       updateDaysCompleted();
+      if (calendarGrid) renderCalendar();
     }
   }
 
   function addTask() {
+    if (!taskTitle || !taskDate || !taskTime) return;
+
     const title = taskTitle.value.trim();
     const date = taskDate.value;
     const time = taskTime.value;
@@ -228,8 +273,10 @@ document.addEventListener("DOMContentLoaded", function () {
         templateTasks.push({ title, time });
         localStorage.setItem("templateTasks", JSON.stringify(templateTasks));
       }
-      taskTitle.value = "";
-      taskTime.value = "";
+
+      if (taskTitle) taskTitle.value = "";
+      if (taskTime) taskTime.value = "";
+
       renderTasks();
       updateDailyProgress();
       scheduleNotification(task);
@@ -240,6 +287,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function renderTasks() {
+    if (!tasksContainer) return;
+
     tasksContainer.innerHTML = "";
     const today = getLocalDateString();
     const todayTasks = tasks.filter((task) => task.date === today);
@@ -255,17 +304,17 @@ document.addEventListener("DOMContentLoaded", function () {
         taskElement.className = "task-item";
         taskElement.dataset.id = task.id;
         taskElement.innerHTML = `
-                        <div class="task-info">
-                            <div class="task-title">${task.title}</div>
-                            <div class="task-time">${formatDate(
-                              task.date
-                            )} at ${task.time}</div>
-                        </div>
-                        <div class="task-actions">
-                            <button class="btn-success complete-btn">Complete</button>
-                            <button class="btn-warning edit-btn">Edit</button>
-                            <button class="btn-danger delete-btn">Delete</button>
-                        </div>`;
+                    <div class="task-info">
+                        <div class="task-title">${escapeHtml(task.title)}</div>
+                        <div class="task-time">${formatDate(task.date)} at ${
+          task.time
+        }</div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn-success complete-btn">Complete</button>
+                        <button class="btn-warning edit-btn">Edit</button>
+                        <button class="btn-danger delete-btn">Delete</button>
+                    </div>`;
         tasksContainer.appendChild(taskElement);
       });
     }
@@ -273,7 +322,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function openEditPopup(taskId) {
     const task = tasks.find((t) => t.id === taskId);
-    if (task) {
+    if (
+      task &&
+      editPopup &&
+      editTaskTitle &&
+      editTaskDate &&
+      editTaskTime &&
+      editTaskId
+    ) {
       editTaskId.value = task.id;
       editTaskTitle.value = task.title;
       editTaskDate.value = task.date;
@@ -283,10 +339,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function closeEditPopup() {
-    editPopup.style.display = "none";
+    if (editPopup) editPopup.style.display = "none";
   }
 
   function saveEditedTask() {
+    if (!editTaskId || !editTaskTitle || !editTaskDate || !editTaskTime) return;
+
     const taskId = parseInt(editTaskId.value);
     const title = editTaskTitle.value.trim();
     const date = editTaskDate.value;
@@ -295,6 +353,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (title && date && time) {
       const taskIndex = tasks.findIndex((t) => t.id === taskId);
       if (taskIndex !== -1) {
+        // Clear existing notifications
         if (notificationTimeouts[taskId])
           clearTimeout(notificationTimeouts[taskId]);
         if (notificationIntervals[taskId])
@@ -321,6 +380,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const taskIndex = tasks.findIndex((t) => t.id === taskId);
     if (taskIndex !== -1) {
       tasks[taskIndex].completed = true;
+
+      // Clear notifications
       if (notificationTimeouts[taskId])
         clearTimeout(notificationTimeouts[taskId]);
       if (notificationIntervals[taskId])
@@ -336,6 +397,7 @@ document.addEventListener("DOMContentLoaded", function () {
           minute: "2-digit",
         }),
       });
+
       localStorage.setItem("tasks", JSON.stringify(tasks));
       localStorage.setItem("history", JSON.stringify(history));
       renderTasks();
@@ -346,33 +408,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // ✅ FIXED: This function is completely rewritten to prevent crashes.
   function deleteTask(taskId) {
-    // Find the task's location in the array BEFORE deleting it.
     const taskIndex = tasks.findIndex((t) => t.id === taskId);
-
     if (taskIndex !== -1) {
-      // Good UX: Ask for confirmation before deleting.
       if (confirm("Are you sure you want to delete this task?")) {
-        // Get a reference to the task object before it's removed.
         const deletedTask = tasks[taskIndex];
 
-        // 1. Clear any scheduled notifications for this specific task.
-        if (notificationTimeouts[taskId]) {
+        // Clear notifications
+        if (notificationTimeouts[taskId])
           clearTimeout(notificationTimeouts[taskId]);
-          delete notificationTimeouts[taskId];
-        }
-        if (notificationIntervals[taskId]) {
+        if (notificationIntervals[taskId])
           clearInterval(notificationIntervals[taskId]);
-          delete notificationIntervals[taskId];
-        }
+        delete notificationTimeouts[taskId];
+        delete notificationIntervals[taskId];
 
-        // 2. Remove the task from the main 'tasks' array.
+        // Remove task
         tasks.splice(taskIndex, 1);
 
-        // 3. Remove the associated template to prevent it from auto-adding tomorrow.
-        // We use the 'deletedTask' object we saved earlier to find the right template.
-        // CRUCIAL: Re-assign the result of .filter() back to the 'templateTasks' variable.
+        // Remove template
         templateTasks = templateTasks.filter(
           (template) =>
             !(
@@ -381,11 +434,8 @@ document.addEventListener("DOMContentLoaded", function () {
             )
         );
 
-        // 4. Update localStorage with the newly modified arrays.
         localStorage.setItem("tasks", JSON.stringify(tasks));
         localStorage.setItem("templateTasks", JSON.stringify(templateTasks));
-
-        // 5. Update the UI to reflect the changes.
         renderTasks();
         updateDailyProgress();
         renderCalendar();
@@ -394,11 +444,14 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function renderHistory() {
+    if (!historyContainer) return;
+
     historyContainer.innerHTML = "";
     if (history.length === 0) {
       historyContainer.innerHTML = `<div class="empty-state"><i class="fas fa-history"></i><p>No completed tasks yet.</p></div>`;
       return;
     }
+
     const historyByDate = {};
     history.forEach((item) => {
       if (!historyByDate[item.date]) {
@@ -416,7 +469,9 @@ document.addEventListener("DOMContentLoaded", function () {
       dateElement.className = "history-item";
       let dateHTML = `<div class="history-date">${formatDate(date)}</div>`;
       historyByDate[date].forEach((item) => {
-        dateHTML += `<div class="history-task"><span>${item.title}</span><span>Completed at ${item.completedTime}</span></div>`;
+        dateHTML += `<div class="history-task"><span>${escapeHtml(
+          item.title
+        )}</span><span>Completed at ${item.completedTime}</span></div>`;
       });
       dateElement.innerHTML = dateHTML;
       historyContainer.appendChild(dateElement);
@@ -424,15 +479,19 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updateDaysCompleted() {
+    if (!daysCompletedContainer) return;
+
     daysCompletedContainer.innerHTML = "";
     if (history.length === 0) {
       daysCompletedContainer.innerHTML = `<div class="days-completed">Total Days Completed: 0</div>`;
       return;
     }
+
     const uniqueDays = new Set(history.map((item) => item.date));
     const dates = Array.from(uniqueDays).sort();
     const firstDate = dates[0];
     const lastDate = dates[dates.length - 1];
+
     daysCompletedContainer.innerHTML = `
             <div class="days-completed">
                 Total Days Completed: ${uniqueDays.size}
@@ -444,6 +503,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updateDailyProgress() {
+    if (!progressBar || !progressText) return;
+
     const today = getLocalDateString();
     const totalTasks = tasks.filter((t) => t.date === today).length;
     const completedTasks = tasks.filter(
@@ -495,8 +556,21 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
+  function escapeHtml(unsafe) {
+    return unsafe
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
   function checkNotificationPermission() {
-    if ("Notification" in window && Notification.permission === "default") {
+    if (
+      "Notification" in window &&
+      Notification.permission === "default" &&
+      notificationPermission
+    ) {
       notificationPermission.style.display = "block";
     }
   }
@@ -504,7 +578,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function requestNotificationPermission() {
     if ("Notification" in window) {
       Notification.requestPermission().then((permission) => {
-        if (permission === "granted") {
+        if (permission === "granted" && notificationPermission) {
           notificationPermission.style.display = "none";
           scheduleAllNotifications();
         }
@@ -513,16 +587,19 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function dismissNotificationPermission() {
-    notificationPermission.style.display = "none";
+    if (notificationPermission) notificationPermission.style.display = "none";
   }
 
   function scheduleAllNotifications() {
     if (Notification.permission !== "granted") return;
+
+    // Clear existing notifications
     for (let id in notificationTimeouts) clearTimeout(notificationTimeouts[id]);
     for (let id in notificationIntervals)
       clearInterval(notificationIntervals[id]);
     notificationTimeouts = {};
     notificationIntervals = {};
+
     const today = getLocalDateString();
     tasks
       .filter((task) => task.date === today && !task.completed)
@@ -531,11 +608,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function scheduleNotification(task) {
     if (Notification.permission !== "granted") return;
+
     const [hours, minutes] = task.time.split(":").map(Number);
     const taskDateTime = new Date(task.date);
     taskDateTime.setHours(hours, minutes, 0, 0);
     const notifyTime = new Date(taskDateTime.getTime() - 30 * 60000);
+
     if (notifyTime < new Date()) return;
+
     const timeUntilNotification = notifyTime - new Date();
     notificationTimeouts[task.id] = setTimeout(() => {
       const currentTask = tasks.find((t) => t.id === task.id);
@@ -552,6 +632,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function renderCalendar() {
+    if (!calendarGrid || !calendarTitle) return;
+
     const monthNames = [
       "January",
       "February",
@@ -582,6 +664,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const daysInMonth = lastDay.getDate();
     const startDay = firstDay.getDay();
 
+    // Empty days for previous month
     for (let i = 0; i < startDay; i++) {
       const emptyDay = document.createElement("div");
       emptyDay.className = "calendar-day other-month";
@@ -592,6 +675,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const today = new Date();
     const todayFormatted = getLocalDateString(today);
 
+    // Days of current month
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(
         2,
@@ -609,7 +693,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       const dayTasks = tasks.filter((task) => task.date === dateStr);
-
       if (dayTasks.length > 0) {
         const completedTasksCount = dayTasks.filter(
           (task) => task.completed
@@ -634,6 +717,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // Check for new day every minute
   setInterval(checkNewDay, 60000);
-  renderCalendar();
 });
