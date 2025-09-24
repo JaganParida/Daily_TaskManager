@@ -157,6 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
       alert("Please enter your name to continue");
     }
   }
+
   function saveProfile() {
     if (user) {
       user.name = userName.value;
@@ -232,9 +233,7 @@ document.addEventListener("DOMContentLoaded", function () {
       renderTasks();
       updateDailyProgress();
       scheduleNotification(task);
-      if (document.getElementById("calendar").classList.contains("active")) {
-        renderCalendar();
-      }
+      renderCalendar();
     } else {
       alert("Please fill all task fields");
     }
@@ -256,23 +255,17 @@ document.addEventListener("DOMContentLoaded", function () {
         taskElement.className = "task-item";
         taskElement.dataset.id = task.id;
         taskElement.innerHTML = `
-                            <div class="task-info">
-                                <div class="task-title">${task.title}</div>
-                                <div class="task-time">${formatDate(
-                                  task.date
-                                )} at ${task.time}</div>
-                            </div>
-                            <div class="task-actions">
-                                <button class="btn-success complete-btn" data-id="${
-                                  task.id
-                                }">Complete</button>
-                                <button class="btn-warning edit-btn" data-id="${
-                                  task.id
-                                }">Edit</button>
-                                <button class="btn-danger delete-btn" data-id="${
-                                  task.id
-                                }">Delete</button>
-                            </div>`;
+                    <div class="task-info">
+                        <div class="task-title">${task.title}</div>
+                        <div class="task-time">${formatDate(task.date)} at ${
+          task.time
+        }</div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn-success complete-btn">Complete</button>
+                        <button class="btn-warning edit-btn">Edit</button>
+                        <button class="btn-danger delete-btn">Delete</button>
+                    </div>`;
         tasksContainer.appendChild(taskElement);
       });
     }
@@ -317,9 +310,7 @@ document.addEventListener("DOMContentLoaded", function () {
         updateDailyProgress();
         scheduleNotification(tasks[taskIndex]);
         closeEditPopup();
-        if (document.getElementById("calendar").classList.contains("active")) {
-          renderCalendar();
-        }
+        renderCalendar();
       }
     } else {
       alert("Please fill all task fields");
@@ -351,33 +342,48 @@ document.addEventListener("DOMContentLoaded", function () {
       renderHistory();
       updateDailyProgress();
       updateDaysCompleted();
-      if (document.getElementById("calendar").classList.contains("active")) {
-        renderCalendar();
-      }
+      renderCalendar();
     }
   }
 
+  // FIXED: Rewritten deleteTask function
   function deleteTask(taskId) {
     const taskIndex = tasks.findIndex((t) => t.id === taskId);
+
     if (taskIndex !== -1) {
-      const task = tasks[taskIndex];
-      templateTasks = templateTasks.filter(
-        (t) => !(t.title === task.title && t.time === task.time)
-      );
-      localStorage.setItem("templateTasks", JSON.stringify(templateTasks));
+      // Good UX: Ask for confirmation before deleting
+      if (confirm("Are you sure you want to delete this task?")) {
+        const deletedTask = tasks[taskIndex];
 
-      if (notificationTimeouts[taskId])
-        clearTimeout(notificationTimeouts[taskId]);
-      if (notificationIntervals[taskId])
-        clearInterval(notificationIntervals[taskId]);
-      delete notificationTimeouts[taskId];
-      delete notificationIntervals[taskId];
+        // 1. Clear any scheduled notifications for this task
+        if (notificationTimeouts[taskId]) {
+          clearTimeout(notificationTimeouts[taskId]);
+          delete notificationTimeouts[taskId];
+        }
+        if (notificationIntervals[taskId]) {
+          clearInterval(notificationIntervals[taskId]);
+          delete notificationIntervals[taskId];
+        }
 
-      tasks = tasks.filter((t) => t.id !== taskId);
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-      renderTasks();
-      updateDailyProgress();
-      if (document.getElementById("calendar").classList.contains("active")) {
+        // 2. Remove the task from the main tasks array using splice
+        tasks.splice(taskIndex, 1);
+
+        // 3. Remove the associated template task to prevent recurrence
+        templateTasks = templateTasks.filter(
+          (template) =>
+            !(
+              template.title === deletedTask.title &&
+              template.time === deletedTask.time
+            )
+        );
+
+        // 4. Update localStorage for both arrays
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        localStorage.setItem("templateTasks", JSON.stringify(templateTasks));
+
+        // 5. Update the UI
+        renderTasks();
+        updateDailyProgress();
         renderCalendar();
       }
     }
@@ -397,7 +403,11 @@ document.addEventListener("DOMContentLoaded", function () {
       historyByDate[item.date].push(item);
     });
 
-    for (const date in historyByDate) {
+    const sortedDates = Object.keys(historyByDate).sort(
+      (a, b) => new Date(b) - new Date(a)
+    );
+
+    sortedDates.forEach((date) => {
       const dateElement = document.createElement("div");
       dateElement.className = "history-item";
       let dateHTML = `<div class="history-date">${formatDate(date)}</div>`;
@@ -406,7 +416,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       dateElement.innerHTML = dateHTML;
       historyContainer.appendChild(dateElement);
-    }
+    });
   }
 
   function updateDaysCompleted() {
@@ -420,13 +430,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const firstDate = dates[0];
     const lastDate = dates[dates.length - 1];
     daysCompletedContainer.innerHTML = `
-                    <div class="days-completed">
-                        Total Days Completed: ${uniqueDays.size}
-                        <div class="days-summary">
-                            <span>From: ${formatDate(firstDate)}</span>
-                            <span>To: ${formatDate(lastDate)}</span>
-                        </div>
-                    </div>`;
+            <div class="days-completed">
+                Total Days Completed: ${uniqueDays.size}
+                <div class="days-summary">
+                    <span>From: ${formatDate(firstDate)}</span>
+                    <span>To: ${formatDate(lastDate)}</span>
+                </div>
+            </div>`;
   }
 
   function updateDailyProgress() {
@@ -583,7 +593,6 @@ document.addEventListener("DOMContentLoaded", function () {
         2,
         "0"
       )}-${String(day).padStart(2, "0")}`;
-
       const dayElement = document.createElement("div");
       dayElement.className = "calendar-day";
 
