@@ -1,13 +1,12 @@
 :root {
-  /* Modern UI Color Palette */
-  --primary: #3d66fd;
-  --secondary: #6c757d;
-  --success: #28a745;
-  --danger: #dc3545;
-  --warning: #ffc107;
-  --info: #17a2b8;
+  --primary: #4361ee;
+  --secondary: #3a0ca3;
+  --success: #4cc9f0;
+  --danger: #f72585;
+  --warning: #fca311;
+  --info: #4895ef;
   --light: #f8f9fa;
-  --dark: #343a40;
+  --dark: #212529;
   --background: #ffffff;
   --text: #212529;
   --card-bg: #ffffff;
@@ -18,12 +17,6 @@
 }
 
 [data-theme="dark"] {
-  --primary: #3d66fd;
-  --secondary: #8a96a2;
-  --success: #2dbe50;
-  --danger: #e54c5b;
-  --warning: #ffca2c;
-  --info: #35b3c8;
   --background: #121212;
   --text: #e6e6e6;
   --card-bg: #1e1e1e;
@@ -32,33 +25,12 @@
   --completed: #2d2d2d;
 }
 
-@media (prefers-color-scheme: light) {
-  [data-theme="system"] {
-    --primary: #007bff;
-    --secondary: #6c757d;
-    --success: #28a745;
-    --danger: #dc3545;
-    --warning: #ffc107;
-    --info: #17a2b8;
-    --light: #f8f9fa;
-    --dark: #343a40;
-    --background: #ffffff;
-    --text: #212529;
-    --card-bg: #ffffff;
-    --border: #dee2e6;
-    --shadow: rgba(0, 0, 0, 0.1);
-    --completed: #e9ecef;
-  }
+[data-theme="system"] {
+  /* System theme will use prefers-color-scheme */
 }
 
 @media (prefers-color-scheme: dark) {
   [data-theme="system"] {
-    --primary: #3d8bfd;
-    --secondary: #8a96a2;
-    --success: #2dbe50;
-    --danger: #e54c5b;
-    --warning: #ffca2c;
-    --info: #35b3c8;
     --background: #121212;
     --text: #e6e6e6;
     --card-bg: #1e1e1e;
@@ -95,9 +67,9 @@ body {
 }
 
 header {
-  background: linear-gradient(90deg, #160036 0%, #090b1ede 100%);
+  background-color: var(--primary);
   color: white;
-  padding: 8px 20px;
+  padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -134,7 +106,7 @@ nav button {
   cursor: pointer;
   font-size: 16px;
   padding: 8px 12px;
-  border-radius: 20px;
+  border-radius: 5px;
   transition: var(--transition);
 }
 
@@ -151,10 +123,7 @@ nav button.active {
 .section.active {
   display: block;
 }
-.callender {
-  width: 50%;
-  margin: 0 auto;
-}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -184,7 +153,8 @@ h3 {
 }
 
 .welcome-popup,
-.edit-popup {
+.edit-popup,
+.confirmation-popup {
   position: fixed;
   top: 0;
   left: 0;
@@ -198,7 +168,8 @@ h3 {
 }
 
 .welcome-content,
-.edit-content {
+.edit-content,
+.confirmation-content {
   background-color: var(--card-bg);
   padding: 30px;
   border-radius: 15px;
@@ -209,7 +180,8 @@ h3 {
 }
 
 .welcome-content h2,
-.edit-content h2 {
+.edit-content h2,
+.confirmation-content h2 {
   margin-bottom: 20px;
   color: var(--primary);
 }
@@ -242,7 +214,7 @@ button {
 }
 
 .btn-primary:hover {
-  background-color: #0069d9;
+  background-color: var(--secondary);
 }
 
 .btn-danger {
@@ -251,7 +223,7 @@ button {
 }
 
 .btn-danger:hover {
-  background-color: #c82333;
+  background-color: #d1146a;
 }
 
 .btn-success {
@@ -260,7 +232,7 @@ button {
 }
 
 .btn-success:hover {
-  background-color: #218838;
+  background-color: #3ab3d6;
 }
 
 .btn-warning {
@@ -269,7 +241,7 @@ button {
 }
 
 .btn-warning:hover {
-  background-color: #e0a800;
+  background-color: #e59400;
 }
 
 .task-form {
@@ -347,7 +319,7 @@ button {
 
 .progress {
   height: 100%;
-  background: linear-gradient(90deg, #4928ff 0%, #6b34eb 100%);
+  background-color: var(--success);
   border-radius: 10px;
   transition: width 0.5s ease;
 }
@@ -356,7 +328,7 @@ button {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: linear-gradient(45deg, var(--primary), var(--info));
+  background-color: var(--primary);
   color: white;
   width: 50px;
   height: 50px;
@@ -433,7 +405,7 @@ button {
 }
 
 .days-completed {
-  background-color: #4342ffd6;
+  background-color: var(--success);
   color: white;
   padding: 15px;
   border-radius: 8px;
@@ -485,61 +457,55 @@ button {
   text-align: center;
   font-weight: bold;
   padding: 10px;
-  background-color: var(--dark);
+  background-color: var(--primary);
   color: white;
   border-radius: 5px;
 }
 
 .calendar-day {
-  aspect-ratio: 1 / 1;
-  position: relative;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.day-tracker {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
+  border-radius: 5px;
   border: 1px solid var(--border);
+  position: relative;
   cursor: pointer;
 }
 
-.calendar-day.other-month .day-tracker {
+.calendar-day.other-month {
   opacity: 0.3;
 }
 
-.day-tracker.today {
-  background-color: var(--success);
-  color: white;
+.calendar-day.today {
   border: 2px solid var(--primary);
 }
 
-.day-tracker.completed-all {
-  background-color: var(--primary);
+.calendar-day.completed {
+  background-color: var(--success);
   color: white;
 }
 
-.day-tracker.completed-some {
+.calendar-day.partial {
   background-color: var(--warning);
-  color: var(--dark);
+  color: white;
 }
 
-.day-tracker.completed-none {
-  background-color: var(--danger);
+.calendar-day.has-tasks {
+  background-color: var(--info);
   color: white;
+}
+
+.calendar-day.empty {
+  background-color: var(--border);
 }
 
 .day-details {
   position: absolute;
-  bottom: -5px;
-  right: -5px;
-  width: 22px;
-  height: 22px;
+  bottom: -10px;
+  right: -10px;
+  width: 20px;
+  height: 20px;
   background-color: var(--primary);
   color: white;
   border-radius: 50%;
@@ -547,7 +513,13 @@ button {
   align-items: center;
   justify-content: center;
   font-size: 12px;
-  border: 2px solid var(--card-bg);
+}
+
+.confirmation-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
 }
 
 @media (max-width: 768px) {
@@ -570,9 +542,6 @@ button {
     flex-wrap: wrap;
     justify-content: center;
   }
-  .callender {
-    width: 90%;
-  }
 
   header {
     flex-direction: column;
@@ -586,7 +555,12 @@ button {
     bottom: 100px;
   }
 
-  .day-tracker {
+  .calendar-day {
+    height: 35px;
     font-size: 14px;
+  }
+
+  .confirmation-buttons {
+    flex-direction: column;
   }
 }
