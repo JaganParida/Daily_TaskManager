@@ -2,8 +2,10 @@
   --primary: #4361ee;
   --secondary: #3a0ca3;
   --success: #4cc9f0;
-  --danger: #f72585;
-  --warning: #fca311;
+  --danger: #bb000096;
+  --danger-border: red;
+  --warning: #fca3115c;
+  --warning-border: orange;
   --info: #4895ef;
   --light: #f8f9fa;
   --dark: #212529;
@@ -67,7 +69,7 @@ body {
 }
 
 header {
-  background-color: var(--primary);
+  background-color: #0027ddad;
   color: white;
   padding: 15px 20px;
   display: flex;
@@ -106,7 +108,7 @@ nav button {
   cursor: pointer;
   font-size: 16px;
   padding: 8px 12px;
-  border-radius: 5px;
+  border-radius: 20px;
   transition: var(--transition);
 }
 
@@ -144,8 +146,14 @@ nav button.active {
   margin-bottom: 20px;
   border: 1px solid var(--border);
 }
+h1 {
+  background: linear-gradient(90deg, #dc00ff, #d6ff6b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text; /* For Firefox */
+  color: transparent;
+}
 
-h1,
 h2,
 h3 {
   margin-bottom: 15px;
@@ -219,25 +227,28 @@ button {
 
 .btn-danger {
   background-color: var(--danger);
+  border: 2px solid var(--danger-border);
   color: white;
 }
 
 .btn-danger:hover {
-  background-color: #d1146a;
+  background-color: #f7012e;
 }
 
 .btn-success {
-  background-color: var(--success);
+  background-color: #2e38e191;
   color: white;
+  border: 2px solid blue;
 }
 
 .btn-success:hover {
-  background-color: #3ab3d6;
+  background-color: #3639ff;
 }
 
 .btn-warning {
   background-color: var(--warning);
   color: white;
+  border: 2px solid var(--warning-border);
 }
 
 .btn-warning:hover {
@@ -319,7 +330,7 @@ button {
 
 .progress {
   height: 100%;
-  background-color: var(--success);
+  background-color: #4462ff;
   border-radius: 10px;
   transition: width 0.5s ease;
 }
@@ -405,7 +416,7 @@ button {
 }
 
 .days-completed {
-  background-color: var(--success);
+  background-color: #01740061;
   color: white;
   padding: 15px;
   border-radius: 8px;
@@ -477,23 +488,26 @@ button {
   opacity: 0.3;
 }
 
-.calendar-day.today {
-  border: 2px solid var(--primary);
-}
-
 .calendar-day.completed {
-  background-color: var(--success);
+  background-color: #01740061;
   color: white;
+  border: 2px solid #00ac2e;
+}
+.calendar-day.today {
+  background-color: #3224babf;
+  border: 2px solid #0100ff;
 }
 
 .calendar-day.partial {
-  background-color: var(--warning);
+  background-color: #8d5c0dd1;
   color: white;
+  border: 2px solid orange;
 }
 
 .calendar-day.has-tasks {
-  background-color: var(--info);
+  background-color: #bb000096;
   color: white;
+  border: 2px solid red;
 }
 
 .calendar-day.empty {
@@ -507,6 +521,7 @@ button {
   width: 20px;
   height: 20px;
   background-color: var(--primary);
+  border: 2px solid var(--card-bg);
   color: white;
   border-radius: 50%;
   display: flex;
