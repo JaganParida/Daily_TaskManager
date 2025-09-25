@@ -6,8 +6,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const userLogo = document.getElementById("userLogo");
   const userName = document.getElementById("userName");
   const saveProfileBtn = document.getElementById("saveProfileBtn");
-  const themeSwitcher = document.getElementById("themeSwitcher");
-  const themeIcon = document.getElementById("themeIcon");
   const navBtns = document.querySelectorAll(".nav-btn");
   const sections = document.querySelectorAll(".section");
   const resetBtn = document.getElementById("resetBtn");
@@ -78,17 +76,12 @@ document.addEventListener("DOMContentLoaded", function () {
   let currentMonth = new Date().getMonth();
   let currentYear = new Date().getFullYear();
 
-  // Theme cycle: system -> light -> dark
-  const themeCycle = ["system", "light", "dark"];
-  let currentThemeIndex = 0;
-
   // Initialize the app
   initApp();
 
   // Event Listeners
   startBtn.addEventListener("click", startApp);
   saveProfileBtn.addEventListener("click", saveProfile);
-  themeSwitcher.addEventListener("click", toggleTheme);
   resetBtn.addEventListener("click", resetApp);
   addTaskBtn.addEventListener("click", addTask);
   saveEditBtn.addEventListener("click", saveEditedTask);
@@ -186,12 +179,6 @@ document.addEventListener("DOMContentLoaded", function () {
       userName.value = user.name;
     }
 
-    // Initialize theme
-    const savedTheme = localStorage.getItem("theme") || "system";
-    document.documentElement.setAttribute("data-theme", savedTheme);
-    currentThemeIndex = themeCycle.indexOf(savedTheme);
-    updateThemeIcon(savedTheme);
-
     // Check notification permission
     checkNotificationPermission();
 
@@ -225,26 +212,6 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.setItem("user", JSON.stringify(user));
       userLogo.textContent = user.name.charAt(0).toUpperCase();
       alert("Profile saved successfully!");
-    }
-  }
-
-  function toggleTheme() {
-    // Cycle through themes
-    currentThemeIndex = (currentThemeIndex + 1) % themeCycle.length;
-    const newTheme = themeCycle[currentThemeIndex];
-
-    document.documentElement.setAttribute("data-theme", newTheme);
-    localStorage.setItem("theme", newTheme);
-    updateThemeIcon(newTheme);
-  }
-
-  function updateThemeIcon(theme) {
-    if (theme === "system") {
-      themeIcon.className = "fas fa-desktop";
-    } else if (theme === "light") {
-      themeIcon.className = "fas fa-sun";
-    } else {
-      themeIcon.className = "fas fa-moon";
     }
   }
 
