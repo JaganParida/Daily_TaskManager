@@ -45,7 +45,7 @@ body {
 }
 
 header {
-  background-color: #0027ddad;
+  background-color: #080e2bdb;
   color: white;
   padding: 15px 20px;
   display: flex;
@@ -125,7 +125,7 @@ nav button.active {
 }
 
 h1 {
-  background: linear-gradient(90deg, #dc00ff, #d6ff6b);
+  background: linear-gradient(90deg, #6400ff, #1fff43cc);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
