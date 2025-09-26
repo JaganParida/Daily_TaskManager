@@ -215,33 +215,45 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // UPDATED: Reset function now shows confirmation popup
   function resetApp() {
-    if (
-      confirm("Are you sure you want to reset all data? This cannot be undone.")
-    ) {
-      localStorage.clear();
-      user = null;
-      tasks = [];
-      history = [];
-      templateTasks = [];
+    showResetConfirmation();
+  }
 
-      // Clear all notifications
-      for (let id in notificationTimeouts) {
-        clearTimeout(notificationTimeouts[id]);
-      }
-      for (let id in notificationIntervals) {
-        clearInterval(notificationIntervals[id]);
-      }
-      notificationTimeouts = {};
-      notificationIntervals = {};
+  // NEW: Function to show reset confirmation
+  function showResetConfirmation() {
+    confirmationTaskId.value = "";
+    confirmationAction.value = "reset";
+    confirmationTitle.textContent = "Reset All Data";
+    confirmationMessage.textContent =
+      "Are you sure you want to reset all data? This cannot be undone.";
+    confirmationPopup.style.display = "flex";
+  }
 
-      userLogo.textContent = "U";
-      welcomePopup.style.display = "flex";
-      renderTasks();
-      renderHistory();
-      updateDailyProgress();
-      updateDaysCompleted();
+  // NEW: Function to perform the actual reset
+  function performReset() {
+    localStorage.clear();
+    user = null;
+    tasks = [];
+    history = [];
+    templateTasks = [];
+
+    // Clear all notifications
+    for (let id in notificationTimeouts) {
+      clearTimeout(notificationTimeouts[id]);
     }
+    for (let id in notificationIntervals) {
+      clearInterval(notificationIntervals[id]);
+    }
+    notificationTimeouts = {};
+    notificationIntervals = {};
+
+    userLogo.textContent = "U";
+    welcomePopup.style.display = "flex";
+    renderTasks();
+    renderHistory();
+    updateDailyProgress();
+    updateDaysCompleted();
   }
 
   function addTask() {
@@ -412,6 +424,7 @@ document.addEventListener("DOMContentLoaded", function () {
     confirmationPopup.style.display = "none";
   }
 
+  // UPDATED: Handle confirmation for reset action
   function handleConfirmation() {
     const taskId = parseInt(confirmationTaskId.value);
     const action = confirmationAction.value;
@@ -420,6 +433,8 @@ document.addEventListener("DOMContentLoaded", function () {
       completeTask(taskId);
     } else if (action === "delete") {
       deleteTask(taskId);
+    } else if (action === "reset") {
+      performReset();
     }
 
     closeConfirmationPopup();
@@ -627,7 +642,6 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  // --- CORRECTED FUNCTION ---
   function checkNotificationPermission() {
     // Only try to use notifications if in a secure context (HTTPS or localhost)
     if ("Notification" in window && window.isSecureContext) {
